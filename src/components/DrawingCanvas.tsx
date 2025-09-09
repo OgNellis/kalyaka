@@ -108,6 +108,17 @@ export const DrawingCanvas: React.FC = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }, []);
 
+  const resizeCanvasHandler = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }, []);
+
+  useEffect(() => {
+    resizeCanvasHandler();
+  }, []);
+
   // Слушаем событие очистки из store
   useEffect(() => {
     const unsubscribe = clearCanvas.watch(clearCanvasHandler);
@@ -132,14 +143,8 @@ export const DrawingCanvas: React.FC = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Настройка canvas на весь экран
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    // resizeCanvas();
+    window.addEventListener('resize', resizeCanvasHandler);
 
     // Настройка canvas
     const ctx = canvas.getContext('2d');
@@ -162,7 +167,7 @@ export const DrawingCanvas: React.FC = () => {
     canvas.addEventListener('touchend', stopDrawing, { passive: false });
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('resize', resizeCanvasHandler);
       canvas.removeEventListener('mousedown', startDrawing);
       canvas.removeEventListener('mousemove', draw);
       canvas.removeEventListener('mouseup', stopDrawing);
