@@ -6,11 +6,11 @@ import { drawingStore, setBrushSize } from '../stores/drawing';
 const ToolbarContainer = styled.div`
   position: fixed;
   top: 50%;
-  left: 20px;
+  left: 5px;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.5rem;
   z-index: 1000;
 `;
 
@@ -38,6 +38,11 @@ const BrushSizeButton = styled.button<{ size: number; isActive: boolean }>`
   &:active {
     transform: scale(0.95);
   }
+
+  @media (max-width: 768px) {
+    width: 50px;
+    height: 50px;
+  }
 `;
 
 const BrushPreview = styled.div<{ size: number; isActive: boolean }>`
@@ -46,6 +51,11 @@ const BrushPreview = styled.div<{ size: number; isActive: boolean }>`
   background: ${props => props.isActive ? '#007bff' : '#666'};
   border-radius: 50%;
   transition: all 0.2s ease;
+
+  @media (max-width: 768px) {
+    width: ${props => Math.min(props.size * 1.5, 30)}px;
+    height: ${props => Math.min(props.size * 1.5, 30)}px;
+  }
 `;
 
 const brushSizes = [

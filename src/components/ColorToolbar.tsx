@@ -6,11 +6,11 @@ import { drawingStore, setColor } from '../stores/drawing';
 const ToolbarContainer = styled.div`
   position: fixed;
   top: 50%;
-  right: 20px;
+  right: 5px;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.3rem;
   z-index: 1000;
 `;
 
@@ -32,6 +32,11 @@ const ColorButton = styled.button<{ color: string; isActive: boolean }>`
 
   &:active {
     transform: scale(0.95);
+  }
+
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
   }
 `;
 

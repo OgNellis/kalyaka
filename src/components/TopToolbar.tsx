@@ -5,11 +5,11 @@ import { clearCanvas } from '../stores/drawing';
 
 const ToolbarContainer = styled.div`
   position: fixed;
-  top: 20px;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
   z-index: 1000;
 `;
 
@@ -35,6 +35,11 @@ const ActionButton = styled.button`
 
   &:active {
     transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
   }
 `;
 
