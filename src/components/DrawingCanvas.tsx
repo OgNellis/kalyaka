@@ -35,8 +35,6 @@ export const DrawingCanvas: React.FC = () => {
     if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
 
     let clientX: number, clientY: number;
 
@@ -49,8 +47,8 @@ export const DrawingCanvas: React.FC = () => {
     }
 
     return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY,
+      x: (clientX - rect.left),
+      y: (clientY - rect.top),
     };
   }, []);
 
@@ -71,6 +69,8 @@ export const DrawingCanvas: React.FC = () => {
     ctx.lineWidth = brushSize;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 1;
     
     ctx.beginPath();
     ctx.moveTo(point.x, point.y);
@@ -105,14 +105,28 @@ export const DrawingCanvas: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Очищаем весь canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }, []);
 
   const resizeCanvasHandler = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    
+    // Увеличиваем разрешение для сглаживания
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * devicePixelRatio;
+    canvas.height = window.innerHeight * devicePixelRatio;
+    
+    // Масштабируем canvas для отображения
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    
+    // Масштабируем контекст
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+    }
   }, []);
 
   useEffect(() => {
@@ -137,6 +151,8 @@ export const DrawingCanvas: React.FC = () => {
     ctx.lineWidth = brushSize;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 1;
   }, [color, brushSize]);
 
   useEffect(() => {
@@ -154,6 +170,8 @@ export const DrawingCanvas: React.FC = () => {
     ctx.lineWidth = brushSize;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 1;
 
     // Mouse events
     canvas.addEventListener('mousedown', startDrawing);
