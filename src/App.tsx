@@ -4,6 +4,7 @@ import { DrawingCanvas } from './components/DrawingCanvas';
 import { TopToolbar } from './components/TopToolbar';
 import { ColorToolbar } from './components/ColorToolbar';
 import { BrushToolbar } from './components/BrushToolbar';
+import { UndoButtonComponent } from './components/UndoButton';
 
 const AppContainer = styled.div`
   width: 100vw;
@@ -20,6 +21,7 @@ const App: React.FC = () => {
       <TopToolbar />
       <ColorToolbar />
       <BrushToolbar />
+      <UndoButtonComponent />
     </AppContainer>
   );
 };

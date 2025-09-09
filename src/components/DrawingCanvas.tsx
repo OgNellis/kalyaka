@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useStore, useEvent } from 'effector-react';
-import { drawingStore, setIsDrawing, clearCanvas } from '../stores/drawing';
+import { drawingStore, setIsDrawing, clearCanvas, saveToHistory, undo } from '../stores/drawing';
 
 const CanvasContainer = styled.div`
   position: absolute;
@@ -27,8 +27,10 @@ const Canvas = styled.canvas`
 
 export const DrawingCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { color, brushSize, isDrawing } = useStore(drawingStore);
+  const { color, brushSize, isDrawing, history, historyIndex } = useStore(drawingStore);
   const setIsDrawingEvent = useEvent(setIsDrawing);
+  const saveToHistoryEvent = useEvent(saveToHistory);
+  const undoEvent = useEvent(undo);
 
   const getPointFromEvent = useCallback((e: MouseEvent | TouchEvent) => {
     const canvas = canvasRef.current;
@@ -62,6 +64,10 @@ export const DrawingCanvas: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Сохраняем текущее состояние в историю перед началом рисования
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    saveToHistoryEvent(imageData);
+
     const point = getPointFromEvent(e);
     
     // Применяем текущие настройки
@@ -74,7 +80,7 @@ export const DrawingCanvas: React.FC = () => {
     
     ctx.beginPath();
     ctx.moveTo(point.x, point.y);
-  }, [color, brushSize, getPointFromEvent, setIsDrawingEvent]);
+  }, [color, brushSize, getPointFromEvent, setIsDrawingEvent, saveToHistoryEvent]);
 
   const draw = useCallback((e: MouseEvent | TouchEvent) => {
     e.preventDefault();
@@ -131,13 +137,43 @@ export const DrawingCanvas: React.FC = () => {
 
   useEffect(() => {
     resizeCanvasHandler();
-  }, []);
+    
+    // Сохраняем пустое состояние в историю при инициализации
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        saveToHistoryEvent(imageData);
+      }
+    }
+  }, [saveToHistoryEvent]);
 
   // Слушаем событие очистки из store
   useEffect(() => {
     const unsubscribe = clearCanvas.watch(clearCanvasHandler);
     return unsubscribe;
   }, [clearCanvasHandler]);
+
+  // Слушаем событие отмены из store
+  useEffect(() => {
+    const unsubscribe = undo.watch(() => {
+      const canvas = canvasRef.current;
+      if (!canvas || history.length === 0) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Восстанавливаем состояние из истории
+      if (historyIndex >= 0 && history[historyIndex]) {
+        ctx.putImageData(history[historyIndex], 0, 0);
+      } else {
+        // Если нет истории, очищаем canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    });
+    return unsubscribe;
+  }, [history, historyIndex]);
 
   // Обновляем настройки canvas при изменении цвета или размера кисти
   useEffect(() => {
