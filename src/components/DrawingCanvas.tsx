@@ -4,38 +4,28 @@ import { useStore, useEvent } from 'effector-react';
 import { drawingStore, setIsDrawing, clearCanvas } from '../stores/drawing';
 
 const CanvasContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
-  background: #f8f9fa;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  margin: 2rem 0;
+  background: white;
 `;
 
 const Canvas = styled.canvas`
-  border: 3px solid #e9ecef;
-  border-radius: 15px;
   background: white;
   cursor: crosshair;
   touch-action: none;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   
   &:active {
     cursor: grabbing;
   }
 `;
 
-interface DrawingCanvasProps {
-  width?: number;
-  height?: number;
-}
-
-export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ 
-  width = 800, 
-  height = 600 
-}) => {
+export const DrawingCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { color, brushSize, isDrawing } = useStore(drawingStore);
   const setIsDrawingEvent = useEvent(setIsDrawing);
@@ -76,12 +66,14 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
 
     const point = getPointFromEvent(e);
     
-    ctx.beginPath();
-    ctx.moveTo(point.x, point.y);
+    // Применяем текущие настройки
     ctx.strokeStyle = color;
     ctx.lineWidth = brushSize;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    
+    ctx.beginPath();
+    ctx.moveTo(point.x, point.y);
   }, [color, brushSize, getPointFromEvent, setIsDrawingEvent]);
 
   const draw = useCallback((e: MouseEvent | TouchEvent) => {
@@ -122,14 +114,39 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     return unsubscribe;
   }, [clearCanvasHandler]);
 
+  // Обновляем настройки canvas при изменении цвета или размера кисти
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }, [color, brushSize]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Настройка canvas на весь экран
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
     // Настройка canvas
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    ctx.strokeStyle = color;
+    ctx.lineWidth = brushSize;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -145,6 +162,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     canvas.addEventListener('touchend', stopDrawing, { passive: false });
 
     return () => {
+      window.removeEventListener('resize', resizeCanvas);
       canvas.removeEventListener('mousedown', startDrawing);
       canvas.removeEventListener('mousemove', draw);
       canvas.removeEventListener('mouseup', stopDrawing);
@@ -153,16 +171,12 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       canvas.removeEventListener('touchmove', draw);
       canvas.removeEventListener('touchend', stopDrawing);
     };
-  }, [startDrawing, draw, stopDrawing]);
+  }, [startDrawing, draw, stopDrawing, color, brushSize]);
 
 
   return (
     <CanvasContainer>
-      <Canvas
-        ref={canvasRef}
-        width={width}
-        height={height}
-      />
+      <Canvas ref={canvasRef} />
     </CanvasContainer>
   );
 };
