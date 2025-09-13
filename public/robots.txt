@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://kalyaka.aafeo.ru/sitemap.xml
+
+# Crawl-delay (опционально)
+Crawl-delay: 1
