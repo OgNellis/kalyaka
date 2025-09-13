@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "webpack serve --mode development",
     "build": "webpack --mode production",
+    "build:ssg": "webpack --mode production && node scripts/prerender.js",
+    "build:simple": "webpack --mode production && node scripts/simple-prerender.js",
+    "prerender": "node scripts/prerender.js",
+    "prerender:simple": "node scripts/simple-prerender.js",
     "start": "npm run dev"
   },
   "keywords": [
@@ -37,6 +41,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "html-webpack-plugin": "^5.5.3",
+    "puppeteer": "^24.20.0",
     "style-loader": "^3.3.3",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
