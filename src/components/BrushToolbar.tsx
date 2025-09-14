@@ -69,6 +69,15 @@ export const BrushToolbar: React.FC = () => {
   const { brushSize } = useStore(drawingStore);
   const setBrushSizeEvent = useEvent(setBrushSize);
 
+  const handleBrushSizeChange = (size: number) => {
+    setBrushSizeEvent(size);
+    
+    // Отправляем событие в Яндекс Метрику
+    if (typeof ym !== 'undefined') {
+      ym(104144056, 'reachGoal', 'change_size');
+    }
+  };
+
   return (
     <ToolbarContainer>
       {brushSizes.map(({ size, label }) => (
@@ -76,7 +85,7 @@ export const BrushToolbar: React.FC = () => {
           key={size}
           size={size}
           isActive={brushSize === size}
-          onClick={() => setBrushSizeEvent(size)}
+          onClick={() => handleBrushSizeChange(size)}
           title={label}
         >
           <BrushPreview size={size} isActive={brushSize === size} />

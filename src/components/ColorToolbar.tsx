@@ -51,6 +51,15 @@ export const ColorToolbar: React.FC = () => {
   const { color } = useStore(drawingStore);
   const setColorEvent = useEvent(setColor);
 
+  const handleColorChange = (colorValue: string) => {
+    setColorEvent(colorValue);
+    
+    // Отправляем событие в Яндекс Метрику
+    if (typeof ym !== 'undefined') {
+      ym(104144056, 'reachGoal', 'change_color');
+    }
+  };
+
   return (
     <ToolbarContainer>
       {colors.map((colorValue) => (
@@ -58,7 +67,7 @@ export const ColorToolbar: React.FC = () => {
           key={colorValue}
           color={colorValue}
           isActive={color === colorValue}
-          onClick={() => setColorEvent(colorValue)}
+          onClick={() => handleColorChange(colorValue)}
           title={colorValue}
         />
       ))}

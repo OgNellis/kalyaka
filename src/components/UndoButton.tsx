@@ -59,11 +59,22 @@ export const UndoButtonComponent: React.FC = () => {
 
   const canUndo = historyIndex >= 0;
 
+  const handleUndo = () => {
+    if (canUndo) {
+      undoEvent();
+      
+      // Отправляем событие в Яндекс Метрику
+      if (typeof ym !== 'undefined') {
+        ym(104144056, 'reachGoal', 'cancel_button');
+      }
+    }
+  };
+
   return (
     <UndoButtonContainer>
       <UndoButton 
         disabled={!canUndo}
-        onClick={canUndo ? undoEvent : undefined}
+        onClick={canUndo ? handleUndo : undefined}
         title={canUndo ? 'Отменить последнее действие' : 'Нет действий для отмены'}
       >
         <UndoIcon disabled={!canUndo} viewBox="0 0 24 24">

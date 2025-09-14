@@ -66,6 +66,15 @@ const SaveButton = styled(ActionButton)`
 export const TopToolbar: React.FC = () => {
   const clearCanvasEvent = useEvent(clearCanvas);
 
+  const handleClear = () => {
+    clearCanvasEvent();
+    
+    // Отправляем событие в Яндекс Метрику
+    if (typeof ym !== 'undefined') {
+      ym(104144056, 'reachGoal', 'clear_button');
+    }
+  };
+
   const handleSave = () => {
     const canvas = document.querySelector('canvas');
     if (canvas) {
@@ -73,12 +82,17 @@ export const TopToolbar: React.FC = () => {
       link.download = 'мой-рисунок.png';
       link.href = canvas.toDataURL();
       link.click();
+      
+      // Отправляем событие в Яндекс Метрику
+      if (typeof ym !== 'undefined') {
+        ym(104144056, 'reachGoal', 'image_download');
+      }
     }
   };
 
   return (
     <ToolbarContainer>
-      <ClearButton onClick={clearCanvasEvent}>
+      <ClearButton onClick={handleClear}>
         🗑️ Очистить
       </ClearButton>
       <SaveButton onClick={handleSave}>
