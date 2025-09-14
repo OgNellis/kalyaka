@@ -78,9 +78,27 @@ export const TopToolbar: React.FC = () => {
   const handleSave = () => {
     const canvas = document.querySelector('canvas');
     if (canvas) {
+      // Создаем новый canvas с белым фоном
+      const exportCanvas = document.createElement('canvas');
+      const exportCtx = exportCanvas.getContext('2d');
+      
+      if (!exportCtx) return;
+      
+      // Устанавливаем размеры нового canvas
+      exportCanvas.width = canvas.width;
+      exportCanvas.height = canvas.height;
+      
+      // Заливаем белым фоном
+      exportCtx.fillStyle = '#ffffff';
+      exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+      
+      // Рисуем содержимое оригинального canvas поверх белого фона
+      exportCtx.drawImage(canvas, 0, 0);
+      
+      // Создаем ссылку для скачивания
       const link = document.createElement('a');
       link.download = 'мой-рисунок.png';
-      link.href = canvas.toDataURL();
+      link.href = exportCanvas.toDataURL('image/png');
       link.click();
       
       // Отправляем событие в Яндекс Метрику
