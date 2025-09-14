@@ -52,6 +52,10 @@ module.exports = {
           from: 'public/sitemap.xml',
           to: 'sitemap.xml',
         },
+        {
+          from: 'public/yandex_85930b229e337657.html',
+          to: 'yandex_85930b229e337657.html',
+        }
       ],
     }),
     new PrerenderPlugin(),
